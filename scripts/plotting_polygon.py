@@ -1,6 +1,6 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import math
+import numpy as np
+import matplotlib.pyplot as plt
 
 def round_to_standard_scale(value):
     """Round to standard GIS-like scale values (e.g., 500, 900, 1000)."""
