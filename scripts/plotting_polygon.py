@@ -18,9 +18,12 @@ def round_to_standard_scale(value):
     else:
         return round(value / 100) * 100  # Steps of 100 (e.g., 1500, 1600)
 
+# Core function to dynamically compute map scale, ensuring GIS-standard compatibility
 def calculate_scale(ax, fig_width_inches=25, fig_height_inches=22):
     """
     Calculate the map scale dynamically, calibrated to match GIS-like scales.
+    Inputs: Matplotlib axis object, figure width/height in inches.
+    Output: Rounded scale value (e.g., 1:500, 1:1000).
     """
     x_min, x_max = ax.get_xlim()
     y_min, y_max = ax.get_ylim()
@@ -28,29 +31,33 @@ def calculate_scale(ax, fig_width_inches=25, fig_height_inches=22):
     y_range = y_max - y_min
 
     if x_range == 0 or y_range == 0:
-        return 1
+        return 1  # Default scale if no range exists
 
+    # Convert figure dimensions from inches to meters for scale calculation
     fig_width_m = fig_width_inches * 0.0254
     fig_height_m = fig_height_inches * 0.0254
     scale_x = x_range / fig_width_m
     scale_y = y_range / fig_height_m
-    raw_scale = max(scale_x, scale_y)
+    raw_scale = max(scale_x, scale_y)  # Use the larger scale for consistency
     meters_per_cm = raw_scale * 0.01
     base_scale = meters_per_cm * 100
-    calibration_factor = 3.273
+    calibration_factor = 3.273  # Empirical factor to align with GIS standards
     calibrated_scale = base_scale * calibration_factor
-    final_scale = round_to_standard_scale(calibrated_scale)
+    final_scale = round_to_standard_scale(calibrated_scale)  # Apply rounding logic
 
+    # Debugging output for scale calculation steps
     print(f"x_range: {x_range}, y_range: {y_range}")
     print(f"scale_x: {scale_x}, scale_y: {scale_y}, raw_scale: {raw_scale}")
     print(f"meters_per_cm: {meters_per_cm}, base_scale: {base_scale}, calibrated_scale: {calibrated_scale}")
 
     return final_scale
 
+# Sample UTM coordinates (expandable for multiple points)
 utm_coords = [
     (5, 98),
 ]
 
+# Calculate distances between consecutive points (currently single point, so list is empty)
 distances = []
 for i in range(len(utm_coords) - 1):
     point1 = utm_coords[i]
@@ -60,16 +67,19 @@ for i in range(len(utm_coords) - 1):
 
 utm_x, utm_y = zip(*utm_coords)
 
+# Set up the figure and axis with predefined dimensions
 fig, ax = plt.subplots(figsize=(25, 22))
 
-# Calculate ranges before plotting
+# Define plot ranges for consistent visualization
 x_min, x_max = min(utm_x), max(utm_x)
 y_min, y_max = min(utm_y), max(utm_y)
 x_range = x_max - x_min
 y_range = y_max - y_min
 
+# Plot the path with black markers and line
 ax.plot(utm_x, utm_y, 'ko-', markersize=0, linewidth=2, label="Path (UTM)")
 
+# Annotate distances and point labels (currently inactive due to single point)
 for i in range(len(utm_coords) - 1):
     point1 = utm_coords[i]
     point2 = utm_coords[i+1]
@@ -78,25 +88,27 @@ for i in range(len(utm_coords) - 1):
     dx = point2[0] - point1[0]
     dy = point2[1] - point1[1]
 
-    degrees = 8.50
+    degrees = 8.50  # Fixed rotation adjustment for label alignment
     rotation_degrees = np.degrees(np.arctan2(dy, dx))
     rotation_degrees += -degrees if (0 <= rotation_degrees < 90) or (-180 <= rotation_degrees < -90) else degrees
     offset_pixels = 10
     offset_x_pixels = offset_pixels * math.cos(math.radians(rotation_degrees + 90))
     offset_y_pixels = offset_pixels * math.sin(math.radians(rotation_degrees + 90))
     
+    # Add distance annotation between points
     ax.annotate(f"{distances[i]:.2f} m", xy=(mid_x, mid_y), xytext=(offset_x_pixels, offset_y_pixels), 
                 textcoords='offset points', ha='center', va='center', rotation=rotation_degrees, 
                 fontsize=15, color='black')
     
-    # Add proportional offset to move text above the point
-    offset_fraction = 0.005  # Adjust this value (e.g., 0.002 to 0.01) for more/less offset
+    # Label each point with a proportional offset above it
+    offset_fraction = 0.005  # Controls vertical offset relative to y-range
     text_offset = y_range * offset_fraction
     ax.text(point1[0], point1[1] + text_offset, f"P0{i+1}", 
             horizontalalignment='center', verticalalignment='bottom', 
             rotation_mode='anchor', fontsize=15, color='black')
     ax.plot(point1[0], point1[1], "o", color='black', markersize=5, linewidth=10)
 
+# Apply margin to center the plot with rounded limits
 margin_factor = 0.33
 x_centered_min = round(x_min - margin_factor * x_range, -1)
 x_centered_max = round(x_max + margin_factor * x_range, -1)
@@ -105,6 +117,7 @@ y_centered_max = round(y_max + margin_factor * y_range, -1)
 ax.set_xlim(x_centered_min, x_centered_max)
 ax.set_ylim(y_centered_min, y_centered_max)
 
+# Set custom tick marks for readability and consistency
 custom_xticks = np.arange(x_centered_min + 30, x_centered_max - 30 + 1, 30)
 custom_yticks = np.arange(y_centered_min + 30, y_centered_max - 30 + 1, 30)
 ax.set_xticks(custom_xticks)
@@ -112,6 +125,7 @@ ax.set_yticks(custom_yticks)
 ax.set_xticklabels([f"{int(tick)}" for tick in custom_xticks], fontsize=15)
 ax.set_yticklabels([f"{int(tick)}" for tick in custom_yticks], rotation=90, fontsize=15)
 
+# Add secondary axes for top and right tick labels
 ax2, ax3 = ax.twiny(), ax.twinx()
 ax2.set_xlim(ax.get_xlim())
 ax3.set_ylim(ax.get_ylim())
@@ -120,12 +134,14 @@ ax3.set_yticks(custom_yticks)
 ax2.set_xticklabels([f"{int(tick)}" for tick in custom_xticks], fontsize=15)
 ax3.set_yticklabels([f"{int(tick)}" for tick in custom_yticks], rotation=270, fontsize=15)
 
+# Add gridlines for visual reference
 ax.grid(True, which='major', linestyle='--', linewidth=0.5)
 ax2.grid(True, which='major', linestyle='--', linewidth=0.5)
 ax3.grid(True, which='major', linestyle='--', linewidth=0.5)
 for tick in custom_xticks: ax.axvline(x=tick, color='gray', linestyle='--', linewidth=0.75)
 for tick in custom_yticks: ax.axhline(y=tick, color='gray', linestyle='--', linewidth=0.75)
 
+# Compute and display the dynamic map scale
 dynamic_scale = calculate_scale(ax, fig_width_inches=25, fig_height_inches=22)
 print(f"Scale 1:{dynamic_scale}")
 
