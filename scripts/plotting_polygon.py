@@ -103,18 +103,30 @@ y_centered_max = round(y_max + margin_factor * y_range, -1)
 ax.set_xlim(x_centered_min, x_centered_max)
 ax.set_ylim(y_centered_min, y_centered_max)
 
-# Set custom ticks to exactly 5 evenly spaced positions
-custom_xticks = np.linspace(x_centered_min, x_centered_max, 5)
-
-# Slightly inset the ticks to avoid extreme corners
+# Slight inset margin from extremes
+tick_margin_factor = 0.10
 num_ticks = 5
-tick_margin_factor = 0.05  # Adjust this factor to control spacing from edges (5% recommended)
 
+# Compute inset min and max for ticks
 x_tick_min = x_centered_min + tick_margin_factor * (x_centered_max - x_centered_min)
 x_tick_max = x_centered_max - tick_margin_factor * (x_centered_max - x_centered_min)
-custom_xticks = np.linspace(x_tick_min, x_tick_max, num_ticks)
 
-# Keep existing y-axis logic or adjust similarly
+# Initial xticks evenly spaced
+initial_xticks = np.linspace(x_tick_min, x_tick_max, num_ticks)
+
+# Compute differences between consecutive ticks
+tick_diffs = np.diff(initial_xticks)
+
+# Calculate average difference and round to nearest multiple of 10
+avg_tick_diff = round(np.mean(tick_diffs) / 10) * 10
+
+# Round first tick to nearest multiple of 10
+first_tick = round(initial_xticks[0] / 10) * 10
+
+# Generate xticks based on rounded first tick and rounded spacing
+custom_xticks = np.array([first_tick + i * avg_tick_diff for i in range(num_ticks)])
+
+# Y-axis logic remains the same
 custom_yticks = np.arange(y_centered_min + 30, y_centered_max - 30 + 1, 30)
 
 # Set ticks and labels
