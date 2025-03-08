@@ -126,6 +126,10 @@ first_tick = round(initial_xticks[0] / 10) * 10
 # Generate xticks based on rounded first tick and rounded spacing
 custom_xticks = np.array([first_tick + i * avg_tick_diff for i in range(num_ticks)])
 
+# If last tick is too close to the edge, shift all ticks inward by one step
+if custom_xticks[-1] > (x_centered_max - tick_margin_factor * (x_centered_max - x_centered_min)):
+    custom_xticks -= avg_tick_diff
+
 # Y-axis logic remains the same
 custom_yticks = np.arange(y_centered_min + 30, y_centered_max - 30 + 1, 30)
 
