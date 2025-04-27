@@ -175,9 +175,14 @@ for i in range(len(utm_coords) - 1):
     text_offset = plot_y_range * offset_fraction if plot_y_range > 0 else 5 # Use fixed offset if range is zero
 
     # Add label for the start point of the segment
-    ax.text(point1[0], point1[1] + text_offset, f"P0{i+1}",
-            horizontalalignment='center', verticalalignment='bottom',
-            rotation_mode='anchor', fontsize=15, color='black')
+    if i<10:
+        ax.text(point1[0], point1[1] + text_offset, f"P0{i+1}",
+                horizontalalignment='center', verticalalignment='bottom',
+                rotation_mode='anchor', fontsize=15, color='black')
+    else:
+        ax.text(point1[0], point1[1] + text_offset, f"P{i+1}",
+                horizontalalignment='center', verticalalignment='bottom',
+                rotation_mode='anchor', fontsize=15, color='black')
     # Add marker for the start point
     ax.plot(point1[0], point1[1], "o", color='black', markersize=5)
 
@@ -296,7 +301,6 @@ if x_tick_calc_range > 0 and num_ticks > 1:
 else: # Handle zero range or num_ticks <= 1
     print("Warning: Cannot calculate optimal X ticks due to range or num_ticks.")
     custom_xticks = np.linspace(x_limits[0], x_limits[1], num_ticks) # Default linear spacing
-
 
 custom_xticks = np.array(custom_xticks)
 print(f"Final X Ticks: {custom_xticks}")
