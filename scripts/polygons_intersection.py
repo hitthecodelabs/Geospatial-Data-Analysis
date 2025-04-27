@@ -272,3 +272,30 @@ def do_polygons_intersect(poly1, poly2):
     # If none of the above checks (vertex inside, edge intersection) returned True,
     # then the polygons do not intersect according to these tests.
     return False
+
+utm_coords = []
+
+cartas = json.load(open("datass.json", "r", encoding="utf-8"))
+
+# Create polygon representations (list of tuples) from the loaded data
+# Store as (index, polygon_vertices, name)
+cartas_polygons = []
+for i, item in enumerate(cartas):
+    if isinstance(item, dict): # Basic check if item is a dictionary
+        polygon_vertices = create_polygon_from_bounds(item)
+        if polygon_vertices: # Only add if polygon creation was successful
+           cartas_polygons.append((i, polygon_vertices, item.get("name", f"Unnamed Carta {i}")))
+        else:print(f"Skipping item {i} due to missing coordinate keys.")
+    else:print(f"Warning: Skipping item {i} as it is not a dictionary: {item}")
+
+for k in cartas_polygons:
+    # print(i)
+    carta_box = []
+    for i in k[1]:carta_box.append([i[0], i[1]])
+    
+    status = do_polygons_intersect(utm_coords, carta_box) ### this one
+    if status:
+        print(f"✅ Polygons intersect: {k[2]}")
+        print("-------------------------------------------------------")
+    else:pass
+    # print("❌ Polygons do not intersect.")
