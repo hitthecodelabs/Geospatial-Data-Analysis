@@ -175,6 +175,7 @@ for i in range(len(utm_coords) - 1):
     text_offset = plot_y_range * offset_fraction if plot_y_range > 0 else 5 # Use fixed offset if range is zero
 
     # Add label for the start point of the segment
+    # if i+2!=len(utm_coords):
     if i<10:
         ax.text(point1[0], point1[1] + text_offset, f"P0{i+1}",
                 horizontalalignment='center', verticalalignment='bottom',
@@ -186,21 +187,21 @@ for i in range(len(utm_coords) - 1):
     # Add marker for the start point
     ax.plot(point1[0], point1[1], "o", color='black', markersize=5)
 
-# Add label and marker for the very last point
-if len(utm_coords) > 0:
-    last_point = utm_coords[-1]
-    if isinstance(last_point, (list, tuple)) and len(last_point) == 2 and all(isinstance(c, (int, float)) for c in last_point):
-        try:
-            current_y_limits = ax.get_ylim()
-            plot_y_range = current_y_limits[1] - current_y_limits[0]
-        except:
-            plot_y_range = y_range
-        text_offset = plot_y_range * offset_fraction if plot_y_range > 0 else 5
+# # Add label and marker for the very last point
+# if len(utm_coords) > 0:
+#     last_point = utm_coords[-1]
+#     if isinstance(last_point, (list, tuple)) and len(last_point) == 2 and all(isinstance(c, (int, float)) for c in last_point):
+#         try:
+#             current_y_limits = ax.get_ylim()
+#             plot_y_range = current_y_limits[1] - current_y_limits[0]
+#         except:
+#             plot_y_range = y_range
+#         text_offset = plot_y_range * offset_fraction if plot_y_range > 0 else 5
 
-        ax.text(last_point[0], last_point[1] + text_offset, f"P0{len(utm_coords)}",
-                horizontalalignment='center', verticalalignment='bottom',
-                rotation_mode='anchor', fontsize=15, color='black')
-        ax.plot(last_point[0], last_point[1], "o", color='black', markersize=5)
+#         ax.text(last_point[0], last_point[1] + text_offset, f"P0{len(utm_coords)}",
+#                 horizontalalignment='center', verticalalignment='bottom',
+#                 rotation_mode='anchor', fontsize=15, color='black')
+#         ax.plot(last_point[0], last_point[1], "o", color='black', markersize=5)
 
 
 # --- Set Axis Limits with Margins ---
